@@ -42,11 +42,12 @@ export default {
     }
   },
   created() {
+    console.log(location.host)
     this.get_video_list();
   },
   methods: {
     get_video_list() {
-      this.$http.get("http://192.168.8.176:4007/api/video_list").then((response) => {
+      this.$http.get(`http://${location.host}/api/video_list`).then((response) => {
         if (response.data.code === 0) {
           let data = response.data.data
           let items = []
@@ -64,7 +65,7 @@ export default {
     },
     download_video(name) {
       console.log('download: ' + name)
-      window.open("http://192.168.8.176:4007/api/download?name=" + name)
+      window.open(`http://${location.host}/api/download?name=${name}`)
     }
   }
 }
