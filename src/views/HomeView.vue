@@ -1,72 +1,140 @@
 <template>
-  <div style="background: white">
-    <div>文件列表</div>
-    <el-table
-        :data="tableData"
-        style="width: 100%">
-      <el-table-column
-          prop="name"
-          label="名称"
-          width="180">
-      </el-table-column>
-      <el-table-column
-          prop="url"
-          label="文件名称">
-      </el-table-column>
-      <el-table-column label="操作" width="180">
-        <template v-slot="scope">
-          <el-button v-on:click="download_video(scope.row.filename)">下载</el-button>
-        </template>
-      </el-table-column>
-    </el-table>
-<!--    <button name="下载" v-on:click="download_video('section_46_zh-Hans.mp4')"/>-->
-  </div>
+  <el-tabs v-model="activeName" @tab-click="handleClick">
+    <el-tab-pane label="数字人视频列表" name="first">
+      <human-video-list/>
+    </el-tab-pane>
+    <el-tab-pane label="上传图片" name="second">
+      <el-select v-model="imgType" placeholder="请选择">
+        <el-option
+            v-for="item in options"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value">
+        </el-option>
+      </el-select>
+      <div style="width: 300px;height: 300px; margin-top: 10px">
+        <el-upload
+            class="upload-demo"
+            drag
+            accept="image/jpeg,image/png,image/jpg"
+            :http-request="uploadImage"
+            multiple>
+          <i class="el-icon-upload"></i>
+          <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
+          <div class="el-upload__tip" slot="tip">只能上传jpg/png文件</div>
+        </el-upload>
+      </div>
+    </el-tab-pane>
+    <el-tab-pane label="上传内容" name="third">
+      <div style="width: 300px;height: 300px; margin-top: 10px">
+        <el-upload
+            class="upload-demo"
+            drag
+            accept="text/plain"
+            :http-request="uploadContent"
+            multiple>
+          <i class="el-icon-upload"></i>
+          <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
+          <div class="el-upload__tip" slot="tip">只能上传txt文件</div>
+        </el-upload>
+      </div>
+    </el-tab-pane>
+    <el-tab-pane label="上传pdf文件" name="fourth">
+      <div style="width: 300px;height: 300px; margin-top: 10px">
+        <el-upload
+            class="upload-demo"
+            drag
+            accept="application/pdf"
+            :http-request="uploadPdf"
+            multiple>
+          <i class="el-icon-upload"></i>
+          <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
+          <div class="el-upload__tip" slot="tip">只能上传pdf文件</div>
+        </el-upload>
+      </div>
+    </el-tab-pane>
+  </el-tabs>
 </template>
 
 <script>
+
+import HumanVideoList from "@/views/HumanVideoList.vue";
+
 export default {
+  name: "Home",
+  components: {HumanVideoList},
   data() {
     return {
-      tableData: [
+      activeName: "first",
+      imageList: [],
+      uploadType: 'avatar',
+      imgType: 'avatar',
+      options: [
         {
-          name: "数字人1",
-          url: "/local",
-          filename: ''
+          value: 'avatar',
+          label: '上传头像'
         },
         {
-          name: "数字人2",
-          url: "/local3",
-          filename: ''
-        }
+          value: 'card',
+          label: '上传卡片'
+        },
       ]
     }
   },
   created() {
-    console.log(location.host)
-    this.get_video_list();
   },
   methods: {
-    get_video_list() {
-      this.$http.get(`http://${location.host}/api/video_list`).then((response) => {
-        if (response.data.code === 0) {
-          let data = response.data.data
-          let items = []
-          for (let i = 0; i < data.length; i++) {
-            items.push({
-              name: 'digital human',
-              url: data[i],
-              filename: data[i]
-            })
-          }
-          this.tableData = items
+    uploadDisabled: function() {
+      return this.imageList.length > 0
+    },
+    handleClick(tab, event) {
+    },
+    onFileChange(file, fileList) {
+      this.imageList = fileList
+    },
+    handleRemove(f) {
+      this.imageList = []
+      console.log('remove file: ' + f.name)
+    },
+    uploadContent(param) {
+      this.uploadType = 'content'
+      this.uploadFile(param)
+    },
+    uploadPdf(param) {
+      this.uploadType = 'pdf'
+      this.uploadFile(param)
+    },
+    uploadImage(param) {
+      this.uploadType = this.imgType
+      this.uploadFile(param)
+    },
+    uploadFile(param) {
+      let _this = this;
+      // let url = "192.168.8.176:4567"
+      let url = location.host
+      let formData = new FormData();
+      formData.append("image", param.file);
+      formData.append("type", _this.uploadType)
+      this.$http.post(`http://${url}/api/upload_file`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
         }
-        console.log(response.data)
+      }).then((res) => {
+        console.log("res code = ", res.data)
+        if (res.data.code === 200) {
+          this.$notify({
+            message: `上传成功`,
+            type: 'success'
+          });
+        }
       })
     },
-    download_video(name) {
-      console.log('download: ' + name)
-      window.open(`http://${location.host}/api/download?name=${name}`)
-    }
   }
 }
 </script>
+
+<style>
+.disabled .el-upload--picture-card {
+  display: none;
+}
+</style>
