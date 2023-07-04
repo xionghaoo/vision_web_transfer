@@ -3,7 +3,7 @@
     <el-tab-pane label="数字人视频列表" name="first">
       <human-video-list/>
     </el-tab-pane>
-    <el-tab-pane label="上传图片" name="second">
+    <el-tab-pane label="上传头像/卡片" name="second">
       <el-select v-model="imgType" placeholder="请选择">
         <el-option
             v-for="item in options"
@@ -25,7 +25,7 @@
         </el-upload>
       </div>
     </el-tab-pane>
-    <el-tab-pane label="上传内容" name="third">
+    <el-tab-pane label="上传讲解文本" name="third">
       <div style="width: 300px;height: 300px; margin-top: 10px">
         <el-upload
             class="upload-demo"
@@ -39,17 +39,17 @@
         </el-upload>
       </div>
     </el-tab-pane>
-    <el-tab-pane label="上传pdf文件" name="fourth">
+    <el-tab-pane label="上传PPT讲解页面" name="fourth">
       <div style="width: 300px;height: 300px; margin-top: 10px">
         <el-upload
             class="upload-demo"
             drag
-            accept="application/pdf"
+            accept="application/pdf,video/*,image/*"
             :http-request="uploadPdf"
             multiple>
           <i class="el-icon-upload"></i>
           <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
-          <div class="el-upload__tip" slot="tip">只能上传pdf文件</div>
+          <div class="el-upload__tip" slot="tip">请上传图片/视频/pdf文件</div>
         </el-upload>
       </div>
     </el-tab-pane>
