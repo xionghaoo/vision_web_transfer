@@ -8,6 +8,12 @@ import VisionPage from "@/views/VisionPage.vue";
   <VisionPage/>
 </template>
 
-<style scoped>
-
+<style>
+#app {
+  padding: 0;
+}
+body {
+  width: 100%;
+  margin: 0;
+}
 </style>
