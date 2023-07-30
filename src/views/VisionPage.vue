@@ -9,12 +9,14 @@
           :src="resUrl"
           preload="auto"
           loop
+          autoplay
           webkit-playsinline
           playsinline
           x5-playsinline
           controls
           controlsList="nodownload"
           disablePictureInPicture
+          :poster="poster"
       />
     </div>
     <div v-else-if="content_type === 6">
@@ -45,21 +47,36 @@ export default {
     } else {
       console.log('id not exist');
     }
+
+    // wx.config({
+    //   debug: false,
+    //   appId: '111',
+    //   timestamp: '111',
+    //   nonceStr: '111',
+    //   signature: '111',
+    //   jsApiList: []
+    // })
+    // wx.ready(()=> {
+    //   let video = document.querySelectorAll("video")[0];
+    //   video.play();
+    // });
+
     // let routeUrl = 'https://roboland-ai.oss-cn-shenzhen.aliyuncs.com/test/Java%E8%99%9A%E6%8B%9F%E6%9C%BA%E8%A7%84%E8%8C%83%EF%BC%88Java%20SE%207%EF%BC%89.pdf';
     // // test
     // let img = 'test/xionghaoo_Full_body_portrait_of_girl_20_years_old_wearing_a_dar_b1be5ea2-7025-468c-b8e3-dac3225ee223.png'
-    // let video = 'test/guide1.mp4';
+    // let url = 'test/guide1.mp4';
     // let pdf = 'test/Java%E8%99%9A%E6%8B%9F%E6%9C%BA%E8%A7%84%E8%8C%83%EF%BC%88Java%20SE%207%EF%BC%89.pdf';
     // let ppt = 'test/EvoCreator%E5%BC%95%E5%AF%BC%E8%AE%B2%E8%A7%A3.pptx'
-    // let type = 7
-    // this.showContent(type, ppt);
+    // let type = 1
+    // this.showContent(type, url);
   },
   data() {
     return {
       section_id: '',
       pdfSrc: '',
       content_type: 0,
-      resUrl: ''
+      resUrl: '',
+      poster: ''
     };
   },
   methods: {
@@ -75,6 +92,7 @@ export default {
     //   this.pdfSrc = 'http://192.168.8.103:5001/static/web/pdf/web/viewer.html?file=' + encodeURIComponent(pSrc) + '.pdf';
     // },
     loadSectionDetail() {
+      let _this = this;
       // http://rvi.ubtrobot.com:5009
       // let host = "http://" + window.location.host.split(":")[0] + ":5001"
       let host = Config.baseUrl
@@ -89,13 +107,15 @@ export default {
               type = 6
               url = screens[0].item_uri_convert
             }
-            this.showContent(type, url);
+            _this.poster = this.getRealUrl(screens[0].poster)
+            _this.showContent(type, url);
           }
           console.log('screens', screens)
         }
       })
     },
     showContent(type, url) {
+      let _this = this;
       console.log('url', url)
       // this.resUrl = url;
       this.content_type = type;
@@ -117,6 +137,38 @@ export default {
       } else if (type === 1) {
         // video
         this.resUrl = this.getRealUrl(url)
+        this.poster = this.resUrl + "?x-oss-process=video/snapshot,t_0000,f_jpg,m_fast"
+
+        // this.$nextTick(function () {
+        //   let video = document.getElementById("video");
+        //   video.src = _this.resUrl
+        //   video.load()
+        //   video.poster
+        //   video.addEventListener("loadeddata", function () {
+        //     console.log('loadeddata')
+        //     // setTimeout(function () {
+        //     //   video.click();
+        //     // }, 2000)
+        //     console.log('WeixinJSBridge', window.WeixinJSBridge)
+        //     document.addEventListener("WeixinJSBridgeReady", function(){
+        //       // _this.doPlay(video)
+        //       document.getElementById('video').play();
+        //     }, false);
+        //
+        //     // if (window.WeixinJSBridge) {
+        //     //   _this.doPlay(video)
+        //     // } else {
+        //     //   document.addEventListener("WeixinJSBridgeReady", function(){
+        //     //     // _this.doPlay(video)
+        //     //     document.getElementById('video').play();
+        //     //   }, false);
+        //     // }
+        //     // video.play()
+        //   });
+        //   // video.onclick = function (event) {
+        //   //   console.log('simulate click')
+        //   // }
+        // })
       } else {
         this.resUrl = this.getRealUrl(url)
         // window.location.replace("https://roboland-deliv.ubtrobot.com/" + url);
@@ -125,6 +177,17 @@ export default {
     getRealUrl(name) {
       return Config.ossHost + name;
     },
+
+    doPlay(video){
+      console.log('do play')
+      WeixinJSBridge.invoke('getNetworkType', {}, function (e) {
+        // var $video = $("#video")
+        // var $video2 = $("#video2")
+        // $video1[0].play()
+        // $video2[0].play()
+        video.play()
+      })
+    }
   }
 }
 </script>
@@ -135,8 +198,12 @@ video {
   width: 100%;
   object-fit: contain;
 }
-.page iframe {
+.page {
   width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;     /* 垂直居中 */
+  justify-content: center;
   background: white;
 }
 .content {
