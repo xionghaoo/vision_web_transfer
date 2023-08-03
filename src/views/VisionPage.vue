@@ -1,24 +1,45 @@
 <template>
   <div class="page">
-    <div class="content" v-if="content_type === 0">
-      <img :src="resUrl" width="100%"/>
+    <div v-if="content_type === 0 || content_type === 1">
+      <div class="content" v-for="(item, index) in section.screens" :key="index">
+        <img v-if="item.file_type === 0" :src="getRealUrl(item.item_uri)" width="100%"/>
+        <video
+            class="content_video"
+            v-else-if="item.file_type === 1"
+            :src="getRealUrl(item.item_uri)"
+            preload="auto"
+            loop
+            :autoplay="false"
+            webkit-playsinline
+            playsinline
+            x5-playsinline
+            controls
+            controlsList="nodownload"
+            disablePictureInPicture
+            :poster="poster"
+        />
+      </div>
     </div>
-    <div v-else-if="content_type === 1">
-      <video
-          class="content"
-          :src="resUrl"
-          preload="auto"
-          loop
-          autoplay
-          webkit-playsinline
-          playsinline
-          x5-playsinline
-          controls
-          controlsList="nodownload"
-          disablePictureInPicture
-          :poster="poster"
-      />
-    </div>
+
+<!--    <div class="content" v-if="content_type === 0">-->
+<!--      <img :src="item.item_uri" width="100%"/>-->
+<!--    </div>-->
+<!--    <div v-else-if="content_type === 1">-->
+<!--      <video-->
+<!--          class="content"-->
+<!--          :src="resUrl"-->
+<!--          preload="auto"-->
+<!--          loop-->
+<!--          autoplay-->
+<!--          webkit-playsinline-->
+<!--          playsinline-->
+<!--          x5-playsinline-->
+<!--          controls-->
+<!--          controlsList="nodownload"-->
+<!--          disablePictureInPicture-->
+<!--          :poster="poster"-->
+<!--      />-->
+<!--    </div>-->
     <div v-else-if="content_type === 6">
       <!-- pdf     -->
 <!--      <iframe :src="resUrl" width="100%" height="100%"></iframe>-->
@@ -76,21 +97,13 @@ export default {
       pdfSrc: '',
       content_type: 0,
       resUrl: '',
-      poster: ''
+      poster: '',
+      section: {
+        screens: [],
+      },
     };
   },
   methods: {
-    // showPpt() {
-    //   let routeUrl = 'https://roboland-deliv.ubtrobot.com/test/App%E7%8A%B6%E6%80%81%E7%AE%A1%E7%90%86%E6%9E%B6%E6%9E%84.pptx'
-    //   let url = encodeURIComponent(routeUrl)
-    //   let officeUrl = 'http://view.officeapps.live.com/op/view.aspx?src='+url
-    //   window.open(officeUrl,'_target')
-    // },
-    // showPdf(routeUrl){
-    //   // this.pdffile=file
-    //   let pSrc = routeUrl + '?r=' + new Date();
-    //   this.pdfSrc = 'http://192.168.8.103:5001/static/web/pdf/web/viewer.html?file=' + encodeURIComponent(pSrc) + '.pdf';
-    // },
     loadSectionDetail() {
       let _this = this;
       // http://rvi.ubtrobot.com:5009
@@ -99,18 +112,27 @@ export default {
       this.$http.get(`${host}/api/fairyland/section_detail?id=${this.section_id}`).then((res) => {
         console.log("data", res.data)
         if (res.data.code === 0) {
-          const screens = res.data.data.screens;
-          if (screens.length > 0) {
-            let url = screens[0].item_uri
-            let type = screens[0].file_type
-            if (type === 7) {
-              type = 6
-              url = screens[0].item_uri_convert
-            }
-            _this.poster = this.getRealUrl(screens[0].poster)
-            _this.showContent(type, url);
+          document.title = res.data.name || '幻境资源';
+          let section = res.data.data
+          this.$data.section = section;
+          if (section.screen_content_type === 6
+              || section.screen_content_type === 7
+              || section.screen_content_type === 1000) {
+            _this.showContent(section.screen_content_type, section.screen_url);
           }
-          console.log('screens', screens)
+
+          // const screens = res.data.data.screens;
+          // if (screens.length > 0) {
+          //   let url = screens[0].item_uri
+          //   let type = screens[0].file_type
+          //   if (type === 7) {
+          //     type = 6
+          //     url = screens[0].item_uri_convert
+          //   }
+          //   _this.poster = this.getRealUrl(screens[0].poster)
+          //   _this.showContent(type, url);
+          // }
+          console.log('screens', section)
         }
       })
     },
@@ -138,37 +160,6 @@ export default {
         // video
         this.resUrl = this.getRealUrl(url)
         this.poster = this.resUrl + "?x-oss-process=video/snapshot,t_0000,f_jpg,m_fast"
-
-        // this.$nextTick(function () {
-        //   let video = document.getElementById("video");
-        //   video.src = _this.resUrl
-        //   video.load()
-        //   video.poster
-        //   video.addEventListener("loadeddata", function () {
-        //     console.log('loadeddata')
-        //     // setTimeout(function () {
-        //     //   video.click();
-        //     // }, 2000)
-        //     console.log('WeixinJSBridge', window.WeixinJSBridge)
-        //     document.addEventListener("WeixinJSBridgeReady", function(){
-        //       // _this.doPlay(video)
-        //       document.getElementById('video').play();
-        //     }, false);
-        //
-        //     // if (window.WeixinJSBridge) {
-        //     //   _this.doPlay(video)
-        //     // } else {
-        //     //   document.addEventListener("WeixinJSBridgeReady", function(){
-        //     //     // _this.doPlay(video)
-        //     //     document.getElementById('video').play();
-        //     //   }, false);
-        //     // }
-        //     // video.play()
-        //   });
-        //   // video.onclick = function (event) {
-        //   //   console.log('simulate click')
-        //   // }
-        // })
       } else {
         this.resUrl = this.getRealUrl(url)
         // window.location.replace("https://roboland-deliv.ubtrobot.com/" + url);
@@ -209,5 +200,8 @@ video {
 .content {
   width: 100%;
   margin: 0 auto;
+}
+.content_video {
+  margin-top: 10px;
 }
 </style>
