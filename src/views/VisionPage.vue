@@ -2,7 +2,13 @@
   <div class="page">
     <div v-if="content_type === 0 || content_type === 1">
       <div class="content" v-for="(item, index) in section.screens" :key="index">
-        <img v-if="item.file_type === 0" :src="getRealUrl(item.item_uri)" width="100%"/>
+<!--        <img v-if="item.file_type === 0" :src="getRealUrl(item.item_uri)" width="100%"/>-->
+        <el-image
+            v-if="item.file_type === 0"
+            style="width: 100%"
+            :src="getRealUrl(item.item_uri)"
+            :preview-src-list="[getRealUrl(item.item_uri)]">
+        </el-image>
         <video
             class="content_video"
             v-else-if="item.file_type === 1"
@@ -193,8 +199,8 @@ video {
   width: 100%;
   height: 100%;
   display: flex;
-  align-items: center;     /* 垂直居中 */
-  justify-content: center;
+  /*align-items: center;     !* 垂直居中 *!*/
+  /*justify-content: center;*/
   background: white;
 }
 .content {
