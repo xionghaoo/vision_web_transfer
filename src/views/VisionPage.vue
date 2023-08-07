@@ -6,8 +6,7 @@
         <el-image
             v-if="item.file_type === 0"
             style="width: 100%"
-            :src="getRealUrl(item.item_uri)"
-            :preview-src-list="[getRealUrl(item.item_uri)]">
+            :src="getRealUrl(item.item_uri)">
         </el-image>
         <video
             class="content_video"
@@ -113,8 +112,8 @@ export default {
     loadSectionDetail() {
       let _this = this;
       // http://rvi.ubtrobot.com:5009
-      // let host = "http://" + window.location.host.split(":")[0] + ":5001"
-      let host = Config.baseUrl
+      let host = "http://" + window.location.host.split(":")[0] + ":5001"
+      // let host = Config.baseUrl
       this.$http.get(`${host}/api/fairyland/section_detail?id=${this.section_id}`).then((res) => {
         console.log("data", res.data)
         if (res.data.code === 0) {
