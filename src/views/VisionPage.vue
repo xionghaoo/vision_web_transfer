@@ -102,9 +102,9 @@ export default {
       this.$http.get(`${host}/api/fairyland/section_detail?id=${this.section_id}`).then((res) => {
         console.log("data", res.data)
         if (res.data.code === 0) {
-          document.title = res.data.name || '幻境资源';
           let section = res.data.data
           this.$data.section = section;
+          document.title = section.card_name || '幻境资源';
           if (section.screen_content_type === 6
               || section.screen_content_type === 7
               || section.screen_content_type === 1000) {
