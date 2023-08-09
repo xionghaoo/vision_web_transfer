@@ -2,8 +2,8 @@
   <div class="page">
     <div v-if="content_type === 0 || content_type === 1">
       <div class="content" v-for="(item, index) in section.screens" :key="index">
-<!--        <img v-if="item.file_type === 0" :src="getRealUrl(item.item_uri)" width="100%"/>-->
         <el-image
+            class="content_image"
             v-if="item.file_type === 0"
             style="width: 100%"
             :src="getRealUrl(item.item_uri)">
@@ -21,38 +21,23 @@
             controls
             controlsList="nodownload"
             disablePictureInPicture
-            :poster="poster"
+            :poster="getPoster(item.item_uri)"
         />
       </div>
     </div>
-
-<!--    <div class="content" v-if="content_type === 0">-->
-<!--      <img :src="item.item_uri" width="100%"/>-->
-<!--    </div>-->
-<!--    <div v-else-if="content_type === 1">-->
-<!--      <video-->
-<!--          class="content"-->
-<!--          :src="resUrl"-->
-<!--          preload="auto"-->
-<!--          loop-->
-<!--          autoplay-->
-<!--          webkit-playsinline-->
-<!--          playsinline-->
-<!--          x5-playsinline-->
-<!--          controls-->
-<!--          controlsList="nodownload"-->
-<!--          disablePictureInPicture-->
-<!--          :poster="poster"-->
-<!--      />-->
-<!--    </div>-->
-    <div v-else-if="content_type === 6">
-      <!-- pdf     -->
-<!--      <iframe :src="resUrl" width="100%" height="100%"></iframe>-->
-      正在加载pdf...
-    </div>
-    <div v-else-if="content_type === 7">
-      <!-- ppt     -->
-      正在加载ppt...
+    <div v-else-if="content_type === 6 || content_type === 7">
+      <div style="margin-top: 20px; margin-left: 30px; font-size: 18px">
+        <a v-if="content_type === 6" href="javascript:void(0);" @click.prevent="openPdf(section.screen_url)">打开PDF原文件</a>
+        <a v-else href="javascript:void(0);" @click.prevent="openPpt(section.screen_url)">打开PPT原文件</a>
+      </div>
+      <div class="content" style="margin-top: 20px" v-for="(item, index) in section.screens" :key="index">
+        <el-image
+            class="content_image"
+            v-if="item.file_type === 0"
+            style="width: 100%"
+            :src="getRealUrl(item.item_uri)">
+        </el-image>
+      </div>
     </div>
   </div>
 </template>
@@ -152,15 +137,15 @@ export default {
         window.location.replace(url);
       } else if (type === 6) {
         // pdf
-        let pSrc = this.getRealUrl(url);
-        let localHost = window.location.host
-        this.resUrl = Config.baseUrl + '/static/web/pdf/web/viewer.html?file=' + encodeURIComponent(pSrc);
-        window.location.replace(this.resUrl)
+        // let pSrc = this.getRealUrl(url);
+        // let localHost = window.location.host
+        // this.resUrl = Config.baseUrl + '/static/web/pdf/web/viewer.html?file=' + encodeURIComponent(pSrc);
+        // window.location.replace(this.resUrl)
       } else if (type === 7) {
         // ppt
         // let routeUrl = 'https://roboland-deliv.ubtrobot.com/test/App%E7%8A%B6%E6%80%81%E7%AE%A1%E7%90%86%E6%9E%B6%E6%9E%84.pptx'
-        let officeUrl = 'http://view.officeapps.live.com/op/view.aspx?src=' + encodeURIComponent(this.getRealUrl(url))
-        window.location.replace(officeUrl)
+        // let officeUrl = 'http://view.officeapps.live.com/op/view.aspx?src=' + encodeURIComponent(this.getRealUrl(url))
+        // window.location.replace(officeUrl)
       } else if (type === 1) {
         // video
         this.resUrl = this.getRealUrl(url)
@@ -170,10 +155,22 @@ export default {
         // window.location.replace("https://roboland-deliv.ubtrobot.com/" + url);
       }
     },
+    getPoster(url) {
+      return this.getRealUrl(url) + "?x-oss-process=video/snapshot,t_0000,f_jpg,m_fast"
+    },
     getRealUrl(name) {
       return Config.ossHost + name;
     },
-
+    openPdf(url) {
+      let pSrc = this.getRealUrl(url);
+      let localHost = window.location.host
+      this.resUrl = Config.baseUrl + '/static/web/pdf/web/viewer.html?file=' + encodeURIComponent(pSrc);
+      window.location.replace(this.resUrl)
+    },
+    openPpt(url) {
+      let officeUrl = 'http://view.officeapps.live.com/op/view.aspx?src=' + encodeURIComponent(this.getRealUrl(url))
+      window.location.replace(officeUrl)
+    },
     doPlay(video){
       console.log('do play')
       WeixinJSBridge.invoke('getNetworkType', {}, function (e) {
@@ -206,7 +203,8 @@ video {
   width: 100%;
   margin: 0 auto;
 }
-.content_video {
+.content_video .content_image {
   margin-top: 10px;
+  width: 100%
 }
 </style>
