@@ -1,5 +1,5 @@
 <template>
-  <div class="page">
+  <div class="page" :style="`${section.screens.length === 1 ? 'align-items: center;justify-content: center;' : ''}`">
     <div v-if="content_type === 0 || content_type === 1">
       <div class="content" v-for="(item, index) in section.screens" :key="index">
         <el-image
@@ -38,6 +38,8 @@
             :src="getRealUrl(item.item_uri)">
         </el-image>
       </div>
+    </div>
+    <div id="richText" class="rich-text" v-else-if="content_type === 1001" v-html="resUrl">
     </div>
   </div>
 </template>
@@ -93,12 +95,34 @@ export default {
       },
     };
   },
+  mounted() {
+    this.updateImages()
+  },
+  updated() {
+    this.updateImages()
+  },
   methods: {
+    updateImages() {
+      let rt = document.getElementById('richText')
+      console.log('rt', rt)
+      if (rt) {
+        let imgs = rt.getElementsByTagName("img")
+        console.log('images', imgs)
+        for (let i = 0; i < imgs.length; i++) {
+          imgs[i].style['width'] = "100%";
+        }
+
+        let videos = rt.getElementsByTagName("iframe")
+        for (let i = 0; i < videos.length; i++) {
+          videos[i].style['width'] = "100%";
+        }
+      }
+    },
     loadSectionDetail() {
       let _this = this;
       // http://rvi.ubtrobot.com:5009
-      // let host = "http://" + window.location.host.split(":")[0] + ":5001"
-      let host = Config.baseUrl
+      let host = "http://" + window.location.host.split(":")[0] + ":5001"
+      // let host = Config.baseUrl
       this.$http.get(`${host}/api/fairyland/section_detail?id=${this.section_id}`).then((res) => {
         console.log("data", res.data)
         if (res.data.code === 0) {
@@ -107,7 +131,9 @@ export default {
           document.title = section.card_name || '幻境资源';
           if (section.screen_content_type === 6
               || section.screen_content_type === 7
-              || section.screen_content_type === 1000) {
+              || section.screen_content_type === 1000
+              || section.screen_content_type === 1001
+          ) {
             _this.showContent(section.screen_content_type, section.screen_url);
           }
 
@@ -133,7 +159,7 @@ export default {
       this.content_type = type;
       // 6 pdf
       // 7 ppt
-      if (type >= 1000) {
+      if (type === 1000) {
         window.location.replace(url);
       } else if (type === 6) {
         // pdf
@@ -150,6 +176,8 @@ export default {
         // video
         this.resUrl = this.getRealUrl(url)
         this.poster = this.resUrl + "?x-oss-process=video/snapshot,t_0000,f_jpg,m_fast"
+      } else if (type === 1001) {
+        this.resUrl = url
       } else {
         this.resUrl = this.getRealUrl(url)
         // window.location.replace("https://roboland-deliv.ubtrobot.com/" + url);
@@ -203,8 +231,13 @@ video {
   width: 100%;
   margin: 0 auto;
 }
-.content_video .content_image {
-  margin-top: 10px;
+.content_video {
   width: 100%
+}
+.content_image {
+  width: 100%
+}
+.rich-text {
+  width: 100%;
 }
 </style>
