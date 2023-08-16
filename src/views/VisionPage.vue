@@ -112,17 +112,25 @@ export default {
           imgs[i].style['width'] = "100%";
         }
 
-        let videos = rt.getElementsByTagName("iframe")
+        let videos = rt.getElementsByTagName("video")
         for (let i = 0; i < videos.length; i++) {
+          videos[i].setAttribute('controls', '')
           videos[i].style['width'] = "100%";
+          // videos[i].style['height'] = "300px";
+        }
+
+        let iframes = rt.getElementsByTagName("iframe")
+        for (let i = 0; i < iframes.length; i++) {
+          iframes[i].style['width'] = "100%";
+          // videos[i].style['height'] = "300px";
         }
       }
     },
     loadSectionDetail() {
       let _this = this;
       // http://rvi.ubtrobot.com:5009
-      let host = "http://" + window.location.host.split(":")[0] + ":5001"
-      // let host = Config.baseUrl
+      // let host = "http://" + window.location.host.split(":")[0] + ":5001"
+      let host = Config.baseUrl
       this.$http.get(`${host}/api/fairyland/section_detail?id=${this.section_id}`).then((res) => {
         console.log("data", res.data)
         if (res.data.code === 0) {
