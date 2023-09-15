@@ -16,7 +16,7 @@ const axiosInstance = axios.create({
 const app = createApp(App)
 
 app.config.globalProperties.$axios = { ...axiosInstance }
-
+console.log('load main.js')
 app.use(router)
 app.use(ElementPlus)
 app.use(VueAxios, axios)

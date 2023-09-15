@@ -1,6 +1,7 @@
 <script setup>
 import { RouterLink, RouterView } from 'vue-router'
 import VisionPage from "@/views/VisionPage.vue";
+import AboutView from "@/views/AboutView.vue";
 </script>
 
 <template>

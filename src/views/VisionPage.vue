@@ -26,18 +26,19 @@
       </div>
     </div>
     <div v-else-if="content_type === 6 || content_type === 7">
-      <div style="margin-top: 20px; margin-left: 30px; font-size: 18px">
-        <a v-if="content_type === 6" href="javascript:void(0);" @click.prevent="openPdf(section.screen_url)">打开PDF原文件</a>
-        <a v-else href="javascript:void(0);" @click.prevent="openPpt(section.screen_url)">打开PPT原文件</a>
-      </div>
-      <div class="content" style="margin-top: 20px" v-for="(item, index) in section.screens" :key="index">
-        <el-image
-            class="content_image"
-            v-if="item.file_type === 0"
-            style="width: 100%"
-            :src="getRealUrl(item.item_uri)">
-        </el-image>
-      </div>
+      <p>正在打开文档。。。</p>
+<!--      <div style="margin-top: 20px; margin-left: 30px; font-size: 18px">-->
+<!--        <a v-if="content_type === 6" href="javascript:void(0);" @click.prevent="openPdf(section.screen_url)">打开PDF原文件</a>-->
+<!--        <a v-else href="javascript:void(0);" @click.prevent="openPpt(section.screen_url)">打开PPT原文件</a>-->
+<!--      </div>-->
+<!--      <div class="content" style="margin-top: 20px" v-for="(item, index) in section.screens" :key="index">-->
+<!--        <el-image-->
+<!--            class="content_image"-->
+<!--            v-if="item.file_type === 0"-->
+<!--            style="width: 100%"-->
+<!--            :src="getRealUrl(item.item_uri)">-->
+<!--        </el-image>-->
+<!--      </div>-->
     </div>
     <div id="richText" class="rich-text" v-else-if="content_type === 1001" v-html="resUrl">
     </div>
@@ -51,10 +52,11 @@ export default {
   name: "VisionPage",
   created() {
     document.title = "幻境资源";
-
+    console.log('created')
     const params = location.search.match(/id=([^?=]+)/);
     if (params && params[1]) {
       this.section_id = params[1];
+      console.log('get section id: ', this.section_id)
       //上报统计数据
       this.loadSectionDetail();
     } else {
@@ -129,8 +131,8 @@ export default {
     loadSectionDetail() {
       let _this = this;
       // http://rvi.ubtrobot.com:5009
-      // let host = "http://" + window.location.host.split(":")[0] + ":5001"
-      let host = Config.baseUrl
+      let host = "http://" + window.location.host.split(":")[0] + ":5001"
+      // let host = Config.baseUrl
       this.$http.get(`${host}/api/fairyland/section_detail?id=${this.section_id}`).then((res) => {
         console.log("data", res.data)
         if (res.data.code === 0) {
@@ -169,7 +171,14 @@ export default {
       // 7 ppt
       if (type === 1000) {
         window.location.replace(url);
-      } else if (type === 6) {
+      } else if (type === 6 || type === 7) {
+        const instance = WebOfficeSDK.init({
+          officeType: WebOfficeSDK.OfficeType.Pdf,
+          appId: 'SX20230913PLUNME',
+          fileId: 'd024bf39eb04f049b10ff6f64cd05eb1',
+          token: ''
+        })
+
         // pdf
         // let pSrc = this.getRealUrl(url);
         // let localHost = window.location.host
@@ -198,10 +207,11 @@ export default {
       return Config.ossHost + name;
     },
     openPdf(url) {
-      let pSrc = this.getRealUrl(url);
-      let localHost = window.location.host
-      this.resUrl = Config.baseUrl + '/static/web/pdf/web/viewer.html?file=' + encodeURIComponent(pSrc);
-      window.location.replace(this.resUrl)
+      // let pSrc = this.getRealUrl(url);
+      // let localHost = window.location.host
+      // this.resUrl = Config.baseUrl + '/static/web/pdf/web/viewer.html?file=' + encodeURIComponent(pSrc);
+      // window.location.replace(this.resUrl)
+
     },
     openPpt(url) {
       let officeUrl = 'http://view.officeapps.live.com/op/view.aspx?src=' + encodeURIComponent(this.getRealUrl(url))
