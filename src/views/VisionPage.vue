@@ -131,8 +131,8 @@ export default {
     loadSectionDetail() {
       let _this = this;
       // http://rvi.ubtrobot.com:5009
-      let host = "http://" + window.location.host.split(":")[0] + ":5001"
-      // let host = Config.baseUrl
+      // let host = "http://" + window.location.host.split(":")[0] + ":5001"
+      let host = Config.baseUrl
       this.$http.get(`${host}/api/fairyland/section_detail?id=${this.section_id}`).then((res) => {
         console.log("data", res.data)
         if (res.data.code === 0) {
@@ -144,7 +144,7 @@ export default {
               || section.screen_content_type === 1000
               || section.screen_content_type === 1001
           ) {
-            _this.showContent(section.screen_content_type, section.screen_url);
+            _this.showContent(section.screen_content_type, section.screen_url, section.wps_file_id);
           }
 
           // const screens = res.data.data.screens;
@@ -162,7 +162,7 @@ export default {
         }
       })
     },
-    showContent(type, url) {
+    showContent(type, url, wps_id) {
       let _this = this;
       console.log('url', url)
       // this.resUrl = url;
@@ -173,9 +173,9 @@ export default {
         window.location.replace(url);
       } else if (type === 6 || type === 7) {
         const instance = WebOfficeSDK.init({
-          officeType: WebOfficeSDK.OfficeType.Pdf,
+          officeType: type === 6 ? WebOfficeSDK.OfficeType.Pdf : WebOfficeSDK.OfficeType.Presentation,
           appId: 'SX20230913PLUNME',
-          fileId: 'd024bf39eb04f049b10ff6f64cd05eb1',
+          fileId: wps_id,
           token: ''
         })
 
