@@ -141,6 +141,8 @@ export default {
           document.title = section.card_name || '幻境资源';
           if (section.screen_content_type === 6
               || section.screen_content_type === 7
+              || section.screen_content_type === 8
+              || section.screen_content_type === 9
               || section.screen_content_type === 1000
               || section.screen_content_type === 1001
           ) {
@@ -171,9 +173,29 @@ export default {
       // 7 ppt
       if (type === 1000) {
         window.location.replace(url);
-      } else if (type === 6 || type === 7) {
+      } else if (type === 6 || type === 7 || type === 8 || type === 9) {
+        let officeType = WebOfficeSDK.OfficeType.Pdf
+        switch (type) {
+          case 6:
+            // pdf
+            officeType = WebOfficeSDK.OfficeType.Pdf
+            break;
+          case 7:
+            // ppt
+            officeType = WebOfficeSDK.OfficeType.Presentation
+            break;
+          case 8:
+            // word
+            officeType = WebOfficeSDK.OfficeType.Writer
+            break;
+          case 9:
+            // excel
+            officeType = WebOfficeSDK.OfficeType.Spreadsheet
+            break
+        }
+        // https://solution.wps.cn/docs/web/quick-start.html#%E6%AD%A5%E9%AA%A4-3-%E5%88%9D%E5%A7%8B%E5%8C%96
         const instance = WebOfficeSDK.init({
-          officeType: type === 6 ? WebOfficeSDK.OfficeType.Pdf : WebOfficeSDK.OfficeType.Presentation,
+          officeType: officeType,
           appId: 'SX20230913PLUNME',
           fileId: wps_id,
           token: ''
