@@ -58,9 +58,14 @@ export default {
       this.section_id = params[1];
       console.log('get section id: ', this.section_id)
       //上报统计数据
-      this.loadSectionDetail();
+      this.loadSectionDetail("id", this.section_id);
     } else {
       console.log('id not exist');
+      const code = location.search.match(/code=([^?=]+)/);
+      if (code && code[1]) {
+        let section_rec_code = code[1];
+        this.loadSectionDetail("code", section_rec_code);
+      }
     }
 
     // wx.config({
@@ -128,12 +133,12 @@ export default {
         }
       }
     },
-    loadSectionDetail() {
+    loadSectionDetail(type, value) {
       let _this = this;
       // http://rvi.ubtrobot.com:5009
       // let host = "http://" + window.location.host.split(":")[0] + ":5001"
       let host = Config.baseUrl
-      this.$http.get(`${host}/api/fairyland/section_detail?id=${this.section_id}`).then((res) => {
+      this.$http.get(`${host}/api/fairyland/section_detail?${type}=${value}`).then((res) => {
         console.log("data", res.data)
         if (res.data.code === 0) {
           let section = res.data.data
@@ -148,18 +153,6 @@ export default {
           ) {
             _this.showContent(section.screen_content_type, section.screen_url, section.wps_file_id);
           }
-
-          // const screens = res.data.data.screens;
-          // if (screens.length > 0) {
-          //   let url = screens[0].item_uri
-          //   let type = screens[0].file_type
-          //   if (type === 7) {
-          //     type = 6
-          //     url = screens[0].item_uri_convert
-          //   }
-          //   _this.poster = this.getRealUrl(screens[0].poster)
-          //   _this.showContent(type, url);
-          // }
           console.log('screens', section)
         }
       })
