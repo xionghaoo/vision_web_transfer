@@ -189,7 +189,7 @@ export default {
         // https://solution.wps.cn/docs/web/quick-start.html#%E6%AD%A5%E9%AA%A4-3-%E5%88%9D%E5%A7%8B%E5%8C%96
         const instance = WebOfficeSDK.init({
           officeType: officeType,
-          appId: 'SX20230913PLUNME',
+          appId: 'AK20231116UGFGZW',
           fileId: wps_id,
           token: ''
         })
