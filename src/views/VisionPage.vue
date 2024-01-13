@@ -1,5 +1,5 @@
 <template>
-  <div class="page" :style="`${section.screens.length === 1 ? 'align-items: center;justify-content: center;' : ''}`">
+  <div v-if="has_permission" class="page" :style="`${section.screens.length === 1 ? 'align-items: center;justify-content: center;' : ''}`">
     <div v-if="content_type === 0 || content_type === 1">
       <div class="content" v-for="(item, index) in section.screens" :key="index">
         <el-image
@@ -30,6 +30,12 @@
     </div>
     <div id="richText" class="rich-text" v-else-if="content_type === 1001" v-html="resUrl">
     </div>
+  </div>
+  <div v-else class="page">
+    <p class="permission-text">
+      您当前没有访问权限，<br>
+      请让文档拥有者{{owner_name}}授权
+    </p>
   </div>
 </template>
 
@@ -94,6 +100,8 @@ export default {
       section: {
         screens: [],
       },
+      has_permission: true,
+      owner_name: ''
     };
   },
   mounted() {
@@ -142,6 +150,8 @@ export default {
         if (res.data.code === 0) {
           localStorage.removeItem('type')
           localStorage.removeItem("value")
+          // TODO 每次进来都需要重新登入，如果需要记住用户，那么当前页面需要做一个退出登入的按钮，用来切换用户
+          localStorage.removeItem("token")
           let section = res.data.data
           this.$data.section = section;
           document.title = section.card_name || '幻境资源';
@@ -158,6 +168,9 @@ export default {
         } else if (res.data.code === -2) {
           // 用户未找到，跳转到登入页面
           _this.$router.replace({name: "Login"})
+        } else if (res.data.code === -3) {
+          _this.$data.has_permission = false
+          _this.$data.owner_name = res.data.data.owner.name
         }
       })
     },
@@ -276,5 +289,14 @@ video {
 }
 .rich-text {
   width: 100%;
+}
+.permission-text{
+  padding: 20px;
+  justify-content: center;
+  margin: auto;
+  font-size: 20px;
+  text-align: center;
+  font-weight: bold;
+  color: red;
 }
 </style>
