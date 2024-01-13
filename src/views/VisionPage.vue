@@ -1,5 +1,5 @@
 <template>
-  <div v-if="has_permission" class="page" :style="`${section.screens.length === 1 ? 'align-items: center;justify-content: center;' : ''}`">
+  <div v-if="code === 0" class="page" :style="`${section.screens.length === 1 ? 'align-items: center;justify-content: center;' : ''}`">
     <div v-if="content_type === 0 || content_type === 1">
       <div class="content" v-for="(item, index) in section.screens" :key="index">
         <el-image
@@ -31,7 +31,12 @@
     <div id="richText" class="rich-text" v-else-if="content_type === 1001" v-html="resUrl">
     </div>
   </div>
-  <div v-else class="page">
+  <div v-else-if="code === -1" class="page">
+    <p class="permission-text" style="color: black">
+      内容未找到，请先绑定卡片
+    </p>
+  </div>
+  <div v-else-if="code === -2" class="page">
     <p class="permission-text">
       您当前没有访问权限，<br>
       请让文档拥有者{{owner_name}}授权
@@ -100,7 +105,7 @@ export default {
       section: {
         screens: [],
       },
-      has_permission: true,
+      code: 0,
       owner_name: ''
     };
   },
@@ -147,6 +152,7 @@ export default {
       }
       this.$http.get(`${host}/api/fairyland/section_detail?${type}=${value}`, {headers: headers}).then((res) => {
         console.log("data", res.data)
+        _this.$data.code = res.data.code
         if (res.data.code === 0) {
           localStorage.removeItem('type')
           localStorage.removeItem("value")
@@ -165,11 +171,12 @@ export default {
             _this.showContent(section.screen_content_type, section.screen_url, section.wps_file_id);
           }
           console.log('screens', section)
+        } else if (res.data.code === -1) {
+          // 内容未找到
         } else if (res.data.code === -2) {
           // 用户未找到，跳转到登入页面
           _this.$router.replace({name: "Login"})
         } else if (res.data.code === -3) {
-          _this.$data.has_permission = false
           _this.$data.owner_name = res.data.data.owner.name
         }
       })
