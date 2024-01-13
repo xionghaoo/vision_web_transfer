@@ -1,8 +1,9 @@
 <script setup>
+import VisionPage from "@/views/VisionPage.vue";
 </script>
 
 <template>
-  <RouterView />
+  <router-view></router-view>
 </template>
 
 <style>

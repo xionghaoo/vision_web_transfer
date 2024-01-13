@@ -89,7 +89,7 @@ export default {
       }).then((res) => {
         console.log("login data", res.data)
         if (res.data.code === 0) {
-          localStorage.setItem("token", res.data.data.user_id)
+          localStorage.setItem("h5_user_id", res.data.data.user_id)
           this.$router.replace({name: "Home"})
         }
       })

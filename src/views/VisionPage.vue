@@ -36,7 +36,7 @@
       内容未找到，请先绑定卡片
     </p>
   </div>
-  <div v-else-if="code === -2" class="page">
+  <div v-else-if="code === -3" class="page">
     <p class="permission-text">
       您当前没有访问权限，<br>
       请让文档拥有者{{owner_name}}授权
@@ -148,16 +148,12 @@ export default {
       // let host = "http://" + window.location.host.split(":")[0] + ":5001"
       let host = Config.baseUrl
       let headers = {
-        "auth-token": localStorage.getItem("token")
+        "auth-token": localStorage.getItem("h5_user_id")
       }
       this.$http.get(`${host}/api/fairyland/section_detail?${type}=${value}`, {headers: headers}).then((res) => {
         console.log("data", res.data)
         _this.$data.code = res.data.code
         if (res.data.code === 0) {
-          localStorage.removeItem('type')
-          localStorage.removeItem("value")
-          // TODO 每次进来都需要重新登入，如果需要记住用户，那么当前页面需要做一个退出登入的按钮，用来切换用户
-          localStorage.removeItem("token")
           let section = res.data.data
           this.$data.section = section;
           document.title = section.card_name || '幻境资源';
@@ -170,16 +166,25 @@ export default {
           ) {
             _this.showContent(section.screen_content_type, section.screen_url, section.wps_file_id);
           }
-          console.log('screens', section)
+          this.clearRequestParams()
+          // TODO 每次进来都需要重新登入，如果需要记住用户，那么当前页面需要做一个退出登入的按钮，用来切换用户
+          localStorage.removeItem("h5_user_id")
         } else if (res.data.code === -1) {
+          this.clearRequestParams()
           // 内容未找到
         } else if (res.data.code === -2) {
           // 用户未找到，跳转到登入页面
           _this.$router.replace({name: "Login"})
         } else if (res.data.code === -3) {
+          this.clearRequestParams()
+          // 没权限
           _this.$data.owner_name = res.data.data.owner.name
         }
       })
+    },
+    clearRequestParams() {
+      localStorage.removeItem('type')
+      localStorage.removeItem("value")
     },
     showContent(type, url, wps_id) {
       let _this = this;
