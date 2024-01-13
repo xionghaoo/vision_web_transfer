@@ -27,18 +27,6 @@
     </div>
     <div v-else-if="content_type === 6 || content_type === 7">
       <p>正在打开文档。。。</p>
-<!--      <div style="margin-top: 20px; margin-left: 30px; font-size: 18px">-->
-<!--        <a v-if="content_type === 6" href="javascript:void(0);" @click.prevent="openPdf(section.screen_url)">打开PDF原文件</a>-->
-<!--        <a v-else href="javascript:void(0);" @click.prevent="openPpt(section.screen_url)">打开PPT原文件</a>-->
-<!--      </div>-->
-<!--      <div class="content" style="margin-top: 20px" v-for="(item, index) in section.screens" :key="index">-->
-<!--        <el-image-->
-<!--            class="content_image"-->
-<!--            v-if="item.file_type === 0"-->
-<!--            style="width: 100%"-->
-<!--            :src="getRealUrl(item.item_uri)">-->
-<!--        </el-image>-->
-<!--      </div>-->
     </div>
     <div id="richText" class="rich-text" v-else-if="content_type === 1001" v-html="resUrl">
     </div>
@@ -53,6 +41,12 @@ export default {
   created() {
     document.title = "幻境资源";
     console.log('created')
+    let type = localStorage.getItem("type")
+    let value = localStorage.getItem("value")
+    if (type && value) {
+      this.loadSectionDetail(type, value)
+      return
+    }
     const params = location.search.match(/id=([^?=]+)/);
     if (params && params[1]) {
       this.section_id = params[1];
@@ -134,13 +128,20 @@ export default {
       }
     },
     loadSectionDetail(type, value) {
+      localStorage.setItem("type", type)
+      localStorage.setItem("value", value)
       let _this = this;
       // http://rvi.ubtrobot.com:5009
       // let host = "http://" + window.location.host.split(":")[0] + ":5001"
       let host = Config.baseUrl
-      this.$http.get(`${host}/api/fairyland/section_detail?${type}=${value}`).then((res) => {
+      let headers = {
+        "auth-token": localStorage.getItem("token")
+      }
+      this.$http.get(`${host}/api/fairyland/section_detail?${type}=${value}`, {headers: headers}).then((res) => {
         console.log("data", res.data)
         if (res.data.code === 0) {
+          localStorage.removeItem('type')
+          localStorage.removeItem("value")
           let section = res.data.data
           this.$data.section = section;
           document.title = section.card_name || '幻境资源';
@@ -154,6 +155,9 @@ export default {
             _this.showContent(section.screen_content_type, section.screen_url, section.wps_file_id);
           }
           console.log('screens', section)
+        } else if (res.data.code === -2) {
+          // 用户未找到，跳转到登入页面
+          _this.$router.replace({name: "Login"})
         }
       })
     },

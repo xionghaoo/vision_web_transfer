@@ -7,6 +7,12 @@
 <!--    <meta name="viewport" content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />-->
       <script src="./web-office-sdk-solution-v2.0.4.umd.js"></script>
       <title>幻境App辅助工具</title>
+      <script>
+          //修改title
+          window.documentTitle = function (str) {
+              document.title = str;
+          }
+      </script>
   </head>
   <body>
     <div id="app"></div>

@@ -16,6 +16,7 @@ export default {
 	isPrintLog: isDev,
 	// 请求url
 	api: {
+		login: baseUrl + '/api/auth/login', //用户登录
 		sectionDetail: baseUrl + '/api/fairyland/section_detail',
 		register: baseUrl + '/phantom/sections/register_record',
 		record: baseUrl + '/phantom/sections/scan_record',
