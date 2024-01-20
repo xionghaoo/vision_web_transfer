@@ -25,8 +25,13 @@
         />
       </div>
     </div>
-    <div v-else-if="content_type === 6 || content_type === 7">
-      <p>正在打开文档。。。</p>
+    <div style="width: 100%" v-else-if="content_type === 6 || content_type === 7 || content_type === 8 || content_type === 9">
+      <div v-if="instance" style="height: 3.6vh; width: 100%; display: flex; align-items: center;justify-content: end">
+        <el-button type="primary" size="small" style="margin-right: 10px;" v-on:click="logout">
+          {{isVisitor ? "登入" : "退出登入"}}
+        </el-button>
+      </div>
+      <p v-else>正在打开文档。。。</p>
     </div>
     <div id="richText" class="rich-text" v-else-if="content_type === 1001" v-html="resUrl">
     </div>
@@ -57,48 +62,40 @@ export default {
   created() {
     document.title = "幻境资源";
     console.log('created')
+    const params_id = location.search.match(/id=([0-9]+)/);
+    const params_code = location.search.match(/code=([0-9a-zA-Z]+)/);
+    const params_token = location.search.match(/token=([0-9]+)/);
+    let token = params_token && params_token[1] ? params_token[1] : null
+    let sectionId = params_id && params_id[1] ? params_id[1] : null
+    let sectionCode = params_code && params_code[1] ? params_code[1] : null
+    console.log('query = ', token, sectionId, sectionCode)
+    let localToken = localStorage.getItem('h5_user_id')
+    if (localToken) {
+      token = localToken
+    } else {
+      // 通过url登入
+      localStorage.setItem('h5_user_id', token)
+    }
     let type = localStorage.getItem("type")
     let value = localStorage.getItem("value")
     if (type && value) {
-      this.loadSectionDetail(type, value)
+      this.loadSectionDetail(type, value, token)
       return
     }
-    const params = location.search.match(/id=([^?=]+)/);
-    if (params && params[1]) {
-      this.section_id = params[1];
+    if (sectionId) {
+      this.section_id = sectionId;
       console.log('get section id: ', this.section_id)
       //上报统计数据
-      this.loadSectionDetail("id", this.section_id);
+      this.loadSectionDetail("id", this.section_id, token);
     } else {
       console.log('id not exist');
-      const code = location.search.match(/code=([^?=]+)/);
-      if (code && code[1]) {
-        let section_rec_code = code[1];
-        this.loadSectionDetail("code", section_rec_code);
+      // const code = location.search.match(/code=([^?=]+)/);
+      if (sectionCode) {
+        this.loadSectionDetail("code", sectionCode, token);
+      } else {
+        console.log('code not exist');
       }
     }
-
-    // wx.config({
-    //   debug: false,
-    //   appId: '111',
-    //   timestamp: '111',
-    //   nonceStr: '111',
-    //   signature: '111',
-    //   jsApiList: []
-    // })
-    // wx.ready(()=> {
-    //   let video = document.querySelectorAll("video")[0];
-    //   video.play();
-    // });
-
-    // let routeUrl = 'https://roboland-ai.oss-cn-shenzhen.aliyuncs.com/test/Java%E8%99%9A%E6%8B%9F%E6%9C%BA%E8%A7%84%E8%8C%83%EF%BC%88Java%20SE%207%EF%BC%89.pdf';
-    // // test
-    // let img = 'test/xionghaoo_Full_body_portrait_of_girl_20_years_old_wearing_a_dar_b1be5ea2-7025-468c-b8e3-dac3225ee223.png'
-    // let url = 'test/guide1.mp4';
-    // let pdf = 'test/Java%E8%99%9A%E6%8B%9F%E6%9C%BA%E8%A7%84%E8%8C%83%EF%BC%88Java%20SE%207%EF%BC%89.pdf';
-    // let ppt = 'test/EvoCreator%E5%BC%95%E5%AF%BC%E8%AE%B2%E8%A7%A3.pptx'
-    // let type = 1
-    // this.showContent(type, url);
   },
   data() {
     return {
@@ -112,7 +109,9 @@ export default {
       },
       code: 0,
       owner_name: '',
-      period_message: ''
+      period_message: '',
+      instance: null,
+      isVisitor: true
     };
   },
   mounted() {
@@ -146,7 +145,7 @@ export default {
         }
       }
     },
-    loadSectionDetail(type, value) {
+    loadSectionDetail(type, value, token) {
       localStorage.setItem("type", type)
       localStorage.setItem("value", value)
       let _this = this;
@@ -154,7 +153,7 @@ export default {
       // let host = "http://" + window.location.host.split(":")[0] + ":5003"
       let host = Config.baseUrl
       let headers = {
-        "auth-token": localStorage.getItem("h5_user_id")
+        "auth-token": token
       }
       this.$http.get(`${host}/api/fairyland/section_detail?${type}=${value}`, {headers: headers}).then((res) => {
         console.log("data", res.data)
@@ -178,18 +177,20 @@ export default {
                 || section.screen_content_type === 1000
                 || section.screen_content_type === 1001
             ) {
-              _this.showContent(section.screen_content_type, section.screen_url, section.wps_file_id);
+              _this.showContent(section.screen_content_type, section.screen_url, section.wps_file_id, section.permission_type);
             }
           }
           this.clearRequestParams()
-          // TODO 每次进来都需要重新登入，如果需要记住用户，那么当前页面需要做一个退出登入的按钮，用来切换用户
-          localStorage.removeItem("h5_user_id")
         } else if (res.data.code === -1) {
           this.clearRequestParams()
           // 内容未找到
         } else if (res.data.code === -2) {
           // 用户未找到，跳转到登入页面
-          _this.$router.replace({name: "Login"})
+          // _this.$router.replace({name: "Login"})
+          this.$router.replace({name: "Login", query: {
+              key: localStorage.getItem('type'),
+              value: localStorage.getItem("value")
+            }})
         } else if (res.data.code === -3) {
           this.clearRequestParams()
           // 没权限
@@ -201,7 +202,7 @@ export default {
       localStorage.removeItem('type')
       localStorage.removeItem("value")
     },
-    showContent(type, url, wps_id) {
+    showContent(type, url, wps_id, permission_type) {
       let _this = this;
       console.log('url', url)
       // this.resUrl = url;
@@ -230,16 +231,7 @@ export default {
             officeType = WebOfficeSDK.OfficeType.Spreadsheet
             break
         }
-        // https://solution.wps.cn/docs/web/quick-start.html#%E6%AD%A5%E9%AA%A4-3-%E5%88%9D%E5%A7%8B%E5%8C%96
-        const instance = WebOfficeSDK.init({
-          officeType: officeType,
-          appId: 'SX20230913PLUNME',
-          fileId: wps_id,
-          token: '',
-          customArgs: {
-            'modifier_id': localStorage.getItem("h5_user_id")
-          }
-        })
+        this.loadWPS(wps_id, officeType, permission_type)
 
         // pdf
         // let pSrc = this.getRealUrl(url);
@@ -288,6 +280,33 @@ export default {
         // $video2[0].play()
         video.play()
       })
+    },
+    async loadWPS(wps_id, officeType, permission_type) {
+      if (this.instance) {
+        this.instance.destroy()
+      }
+      // https://solution.wps.cn/docs/web/quick-start.html#%E6%AD%A5%E9%AA%A4-3-%E5%88%9D%E5%A7%8B%E5%8C%96
+      let user_id = localStorage.getItem("h5_user_id")
+      let visitor_id = "v" + Math.floor(Math.random() * 99999)
+      this.isVisitor = user_id === null || user_id === undefined
+      this.instance = WebOfficeSDK.init({
+        officeType: officeType,
+        appId: 'SX20230913PLUNME',
+        fileId: wps_id,
+        token: '',
+        customArgs: {
+          'modifier_id': user_id ? user_id+"" : visitor_id,
+          'permission_type': permission_type
+        }
+      })
+      await this.instance.ready()
+    },
+    logout() {
+      localStorage.removeItem("h5_user_id")
+      this.instance.destroy()
+      this.instance = null
+      document.body.removeChild(document.getElementsByClassName("web-office-default-container")[0])
+      this.$router.replace({name: "Login"})
     }
   }
 }

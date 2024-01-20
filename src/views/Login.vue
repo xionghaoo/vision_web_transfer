@@ -43,6 +43,11 @@ export default {
   created() {
     window.documentTitle('登录')
   },
+  mounted() {
+    // let key = this.$route.query.key
+    // let value = this.$route.query.value
+    // console.log('router params: ', key, value)
+  },
   data() {
     return {
       brand: {
@@ -66,18 +71,6 @@ export default {
       _this.$refs['ruleForm'].validate((valid) => {
         if (valid) {
           _this.login()
-          // this.submit({
-          //   data: {
-          //     username: loginData.login_name,
-          //     password: loginData.password,
-          //   },
-          //   callback: (rd) => {
-          //     _this.setGlobalAuth(rd.auth)
-          //     Method.setSessionStorage('userGlobalAuth', rd.auth)
-          //     Method.setLocalStorage("login_info", JSON.stringify(rd))
-          //     this.$router.replace({name: "Home"})
-          //   },
-          // })
         }
       })
     },

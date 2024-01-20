@@ -20,4 +20,13 @@ body {
   height: 100%;
   margin: 0;
 }
+.web-office-default-container {
+  width: 100vw !important;
+  height: 96vh !important;
+  margin-top: 3.6vh !important;
+}
+.web-office-iframe {
+  width: 100vw !important;
+  height: 96vh !important;
+}
 </style>
