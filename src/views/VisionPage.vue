@@ -30,6 +30,11 @@
     </div>
     <div id="richText" class="rich-text" v-else-if="content_type === 1001" v-html="resUrl">
     </div>
+    <div v-else-if="content_type === -1" style="width: 100%;height: 100%">
+      <p class="permission-text" style="color: black">
+        {{period_message}}
+      </p>
+    </div>
   </div>
   <div v-else-if="code === -1" class="page">
     <p class="permission-text" style="color: black">
@@ -106,7 +111,8 @@ export default {
         screens: [],
       },
       code: 0,
-      owner_name: ''
+      owner_name: '',
+      period_message: ''
     };
   },
   mounted() {
@@ -145,7 +151,7 @@ export default {
       localStorage.setItem("value", value)
       let _this = this;
       // http://rvi.ubtrobot.com:5009
-      // let host = "http://" + window.location.host.split(":")[0] + ":5001"
+      // let host = "http://" + window.location.host.split(":")[0] + ":5003"
       let host = Config.baseUrl
       let headers = {
         "auth-token": localStorage.getItem("h5_user_id")
@@ -157,14 +163,23 @@ export default {
           let section = res.data.data
           this.$data.section = section;
           document.title = section.card_name || '幻境资源';
-          if (section.screen_content_type === 6
-              || section.screen_content_type === 7
-              || section.screen_content_type === 8
-              || section.screen_content_type === 9
-              || section.screen_content_type === 1000
-              || section.screen_content_type === 1001
-          ) {
-            _this.showContent(section.screen_content_type, section.screen_url, section.wps_file_id);
+          if (section.period_status === 'before') {
+            this.$data.content_type = -1
+            this.$data.period_message = `内容未开启，开启时间：\n${section.period_start.split(' ')[0]} ~ ${section.period_end.split(' ')[0]}`
+          } else if (section.period_status === 'after') {
+            this.$data.content_type = -1
+            this.$data.period_message = "内容已过期"
+          } else {
+            // 显示内容
+            if (section.screen_content_type === 6
+                || section.screen_content_type === 7
+                || section.screen_content_type === 8
+                || section.screen_content_type === 9
+                || section.screen_content_type === 1000
+                || section.screen_content_type === 1001
+            ) {
+              _this.showContent(section.screen_content_type, section.screen_url, section.wps_file_id);
+            }
           }
           this.clearRequestParams()
           // TODO 每次进来都需要重新登入，如果需要记住用户，那么当前页面需要做一个退出登入的按钮，用来切换用户
@@ -218,9 +233,12 @@ export default {
         // https://solution.wps.cn/docs/web/quick-start.html#%E6%AD%A5%E9%AA%A4-3-%E5%88%9D%E5%A7%8B%E5%8C%96
         const instance = WebOfficeSDK.init({
           officeType: officeType,
-          appId: 'AK20231116UGFGZW',
+          appId: 'SX20230913PLUNME',
           fileId: wps_id,
-          token: ''
+          token: '',
+          customArgs: {
+            'modifier_id': localStorage.getItem("h5_user_id")
+          }
         })
 
         // pdf
@@ -310,5 +328,6 @@ video {
   text-align: center;
   font-weight: bold;
   color: red;
+  white-space: pre-wrap;
 }
 </style>
