@@ -73,8 +73,12 @@ export default {
     if (localToken) {
       token = localToken
     } else {
-      // 通过url登入
-      localStorage.setItem('h5_user_id', token)
+      if (token) {
+        // 通过url登入
+        localStorage.setItem('h5_user_id', token)
+      } else {
+        localStorage.setItem('h5_user_id', "")
+      }
     }
     let type = localStorage.getItem("type")
     let value = localStorage.getItem("value")
@@ -288,14 +292,16 @@ export default {
       // https://solution.wps.cn/docs/web/quick-start.html#%E6%AD%A5%E9%AA%A4-3-%E5%88%9D%E5%A7%8B%E5%8C%96
       let user_id = localStorage.getItem("h5_user_id")
       let visitor_id = "v" + Math.floor(Math.random() * 99999)
-      this.isVisitor = user_id === null || user_id === undefined
+      this.isVisitor = user_id === null || user_id === undefined || user_id === ""
+      let modifier_id = !this.isVisitor ? user_id+"" : visitor_id
+      console.log('modifier id', modifier_id, this.isVisitor)
       this.instance = WebOfficeSDK.init({
         officeType: officeType,
-        appId: 'SX20230913PLUNME',
+        appId: 'AK20231116UGFGZW',
         fileId: wps_id,
         token: '',
         customArgs: {
-          'modifier_id': user_id ? user_id+"" : visitor_id,
+          'modifier_id': modifier_id,
           'permission_type': permission_type
         }
       })
