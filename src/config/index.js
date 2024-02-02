@@ -3,10 +3,10 @@
  */
 import { RequestHttpDev, RequestHttpPro } from './host';
 
-console.log('env: ', process.env.NODE_ENV);
+console.log('env: ', import.meta.env.MODE);
 const url = window.location.origin;
-// const isDev = process.env.NODE_ENV == 'development';
-const isDev = false;
+const isDev = import.meta.env.MODE === 'development';
+// const isDev = false;
 const baseUrl = isDev ? RequestHttpDev : RequestHttpPro;
 
 export default {
