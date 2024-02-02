@@ -69,16 +69,25 @@ export default {
     let sectionId = params_id && params_id[1] ? params_id[1] : null
     let sectionCode = params_code && params_code[1] ? params_code[1] : null
     console.log('query = ', token, sectionId, sectionCode)
-    let localToken = localStorage.getItem('h5_user_id')
-    if (localToken) {
-      token = localToken
-    } else {
-      if (token) {
-        // 通过url登入
-        localStorage.setItem('h5_user_id', token)
+    let loginToken = localStorage.getItem('login_h5_token')
+    if (loginToken) {
+      token = loginToken
+      localStorage.removeItem('login_h5_token')
+    }
+    if (!token) {
+      let localToken = localStorage.getItem('h5_user_id')
+      if (localToken) {
+        token = localToken
       } else {
-        localStorage.setItem('h5_user_id', "")
+        if (token) {
+          // 通过url登入
+          localStorage.setItem('h5_user_id', token)
+        } else {
+          localStorage.setItem('h5_user_id', "")
+        }
       }
+    } else {
+      localStorage.setItem('h5_user_id', token)
     }
     let type = localStorage.getItem("type")
     let value = localStorage.getItem("value")
