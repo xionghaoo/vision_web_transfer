@@ -5,8 +5,8 @@ import { RequestHttpDev, RequestHttpPro } from './host';
 
 console.log('env: ', import.meta.env.MODE);
 const url = window.location.origin;
-const isDev = import.meta.env.MODE === 'development';
-// const isDev = false;
+// const isDev = import.meta.env.MODE === 'development';
+const isDev = true;
 const baseUrl = isDev ? RequestHttpDev : RequestHttpPro;
 
 export default {
