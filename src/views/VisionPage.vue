@@ -306,7 +306,7 @@ export default {
       console.log('modifier id', modifier_id, this.isVisitor)
       this.instance = WebOfficeSDK.init({
         officeType: officeType,
-        appId: 'AK20231116UGFGZW',
+        appId: Config.wpsAppId,
         fileId: wps_id,
         token: '',
         customArgs: {

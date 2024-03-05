@@ -9,6 +9,8 @@ const url = window.location.origin;
 const isDev = true;
 const baseUrl = isDev ? RequestHttpDev : RequestHttpPro;
 
+const WPSID = isDev ? "SX20240204APCNPM" : "AK20231116UGFGZW"
+
 export default {
 	// 是否测试环境
 	isDev: isDev,
@@ -25,5 +27,6 @@ export default {
 	fileHost: baseUrl + '/img',
 	ossHost: 'https://roboland-deliv.ubtrobot.com/',
 	urlOrigin: url,
-	contectNum:'13612927554'
+	contectNum:'13612927554',
+	wpsAppId: WPSID
 };
