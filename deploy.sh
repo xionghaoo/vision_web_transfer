@@ -10,4 +10,4 @@ fi
 
 filename="dist.zip"
 zip -q -r $filename ./dist
-curl --form "file=@$filename" -X POST "http://ai.udicaria.com/deploy/vision_h5"
+curl --form "file=@$filename" -X POST "https://ai.udicaria.com/deploy/vision_h5"
