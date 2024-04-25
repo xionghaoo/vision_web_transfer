@@ -113,6 +113,8 @@ export default {
         this.loadSectionDetail("code", sectionCode, token);
       } else {
         console.log('code not exist');
+        this.content_type = -2
+        this.prompt_message = "内容未找到"
       }
     }
   },
