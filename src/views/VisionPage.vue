@@ -33,7 +33,13 @@
       </div>
       <p v-else>正在打开文档。。。</p>
     </div>
-    <div id="richText" class="rich-text" v-else-if="content_type === 1001" v-html="resUrl">
+    <div id="richText" class="rich-text" v-else-if="content_type === 1001">
+      <QuillEditor
+          v-model:content="resUrl"
+          content-type="html"
+          :read-only="true"
+          :options="editorOption"
+      />
     </div>
     <div id="action" v-else-if="content_type === 3000" style="width: 100%;height: 100%">
       <div class="prompt-text">开发中，敬请期待...</div>
@@ -124,6 +130,27 @@ export default {
       pdfSrc: '',
       content_type: 0,
       resUrl: '',
+      editorOption: {
+        placeholder: '',
+        modules: {
+          toolbar: {
+            container: [
+              ['bold', 'italic', 'underline', 'strike'],
+              ['blockquote', 'code-block'],
+              [{ header: 1 }, { header: 2 }],
+              [{ list: 'ordered' }, { list: 'bullet' }],
+              [{ script: 'sub' }, { script: 'super' }],
+              [{ indent: '-1' }, { indent: '+1' }],
+              [{ direction: 'rtl' }],
+              [{ size: ['small', false, 'large', 'huge'] }],
+              [{ header: [1, 2, 3, 4, 5, 6, false] }],
+              [{ color: [] }, { background: [] }],
+              [{ font: [] }],
+              [{ align: [] }],
+            ],
+          },
+        },
+      },
       poster: '',
       section: {
         screens: [],
@@ -143,6 +170,9 @@ export default {
     this.updateImages()
   },
   methods: {
+    focus(event) {
+      event.enable(false);
+    },
     updateImages() {
       let rt = document.getElementById('richText')
       console.log('rt', rt)
