@@ -2,20 +2,10 @@ import * as VueRouter from 'vue-router';
 import VisionPage from "@/views/VisionPage.vue";
 
 const router = VueRouter.createRouter({
-  history: VueRouter.createWebHashHistory(),
+  history: VueRouter.createWebHistory(),
   routes: [
-    // {
-    //   path: '/',
-    //   name: 'Home',
-    //   component: HomeView
-    // },
-    // {
-    //   path: '/humanVideoList',
-    //   name: 'HumanVideoList',
-    //   component: () => import('../views/HumanVideoList.vue')
-    // },
     {
-      path: '/',
+      path: '/:page*',
       name: 'Home',
       component: VisionPage
     },

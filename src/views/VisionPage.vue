@@ -61,7 +61,7 @@ export default {
   name: "VisionPage",
   created() {
     document.title = "幻境资源";
-    console.log('created')
+    console.log(`location=${location.href}`)
     const params_id = location.search.match(/id=([0-9]+)/);
     const params_code = location.search.match(/code=([0-9a-zA-Z]+)/);
     const params_token = location.search.match(/token=([0-9]+)/);
