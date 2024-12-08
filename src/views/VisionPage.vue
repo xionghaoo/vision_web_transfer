@@ -41,6 +41,9 @@
           :options="editorOption"
       />
     </div>
+    <div id="action" v-else-if="content_type === 1003" style="width: 100%;height: 100%">
+      <div class="prompt-text">请在Cariabot设备上打开此功能</div>
+    </div>
     <div id="action" v-else-if="content_type === 3000" style="width: 100%;height: 100%">
       <div class="prompt-text">开发中，敬请期待...</div>
     </div>
@@ -251,7 +254,7 @@ export default {
       console.log('url', url)
       // this.resUrl = url;
       this.content_type = type;
-      if (type === 1000 || type === 1002 || type === 1003) {
+      if (type === 1000 || type === 1002) {
         window.location.replace(url);
       } else if (type === 6 || type === 7 || type === 8 || type === 9) {
         let officeType = WebOfficeSDK.OfficeType.Pdf
@@ -281,6 +284,8 @@ export default {
       } else if (type === 1001) {
         // 富文本
         this.resUrl = url
+      } else if (type === 1003) {
+        // agent
       } else if (type === 3000) {
         // ACTION
       } else {
