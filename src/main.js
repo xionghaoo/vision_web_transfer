@@ -8,13 +8,15 @@ import router from './router'
 // import * as Vue from 'vue'
 import axios from 'axios'
 import VueAxios from 'vue-axios'
+import { QuillEditor } from '@vueup/vue-quill'
+import '@vueup/vue-quill/dist/vue-quill.snow.css';
 
 const axiosInstance = axios.create({
     withCredentials: true,
 })
 
 const app = createApp(App)
-
+app.component('QuillEditor', QuillEditor);
 app.config.globalProperties.$axios = { ...axiosInstance }
 console.log('load main.js')
 app.use(router)

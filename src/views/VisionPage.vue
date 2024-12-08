@@ -33,12 +33,24 @@
       </div>
       <p v-else>正在打开文档。。。</p>
     </div>
-    <div id="richText" class="rich-text" v-else-if="content_type === 1001" v-html="resUrl">
+    <div id="richText" class="rich-text" v-else-if="content_type === 1001">
+      <QuillEditor
+          v-model:content="resUrl"
+          content-type="html"
+          :read-only="true"
+          :options="editorOption"
+      />
+    </div>
+    <div id="action" v-else-if="content_type === 3000" style="width: 100%;height: 100%">
+      <div class="prompt-text">开发中，敬请期待...</div>
     </div>
     <div v-else-if="content_type === -1" style="width: 100%;height: 100%">
       <p class="permission-text" style="color: black">
         {{period_message}}
       </p>
+    </div>
+    <div v-else style="width: 100%;height: 100%">
+      <div class="prompt-text">{{prompt_message}}</div>
     </div>
   </div>
   <div v-else-if="code === -1" class="page">
@@ -107,6 +119,8 @@ export default {
         this.loadSectionDetail("code", sectionCode, token);
       } else {
         console.log('code not exist');
+        this.content_type = -2
+        this.prompt_message = "内容未找到"
       }
     }
   },
@@ -116,6 +130,27 @@ export default {
       pdfSrc: '',
       content_type: 0,
       resUrl: '',
+      editorOption: {
+        placeholder: '',
+        modules: {
+          toolbar: {
+            container: [
+              ['bold', 'italic', 'underline', 'strike'],
+              ['blockquote', 'code-block'],
+              [{ header: 1 }, { header: 2 }],
+              [{ list: 'ordered' }, { list: 'bullet' }],
+              [{ script: 'sub' }, { script: 'super' }],
+              [{ indent: '-1' }, { indent: '+1' }],
+              [{ direction: 'rtl' }],
+              [{ size: ['small', false, 'large', 'huge'] }],
+              [{ header: [1, 2, 3, 4, 5, 6, false] }],
+              [{ color: [] }, { background: [] }],
+              [{ font: [] }],
+              [{ align: [] }],
+            ],
+          },
+        },
+      },
       poster: '',
       section: {
         screens: [],
@@ -124,7 +159,8 @@ export default {
       owner_name: '',
       period_message: '',
       instance: null,
-      isVisitor: true
+      isVisitor: true,
+      prompt_message: '正在加载...'
     };
   },
   mounted() {
@@ -134,6 +170,9 @@ export default {
     this.updateImages()
   },
   methods: {
+    focus(event) {
+      event.enable(false);
+    },
     updateImages() {
       let rt = document.getElementById('richText')
       console.log('rt', rt)
@@ -183,15 +222,7 @@ export default {
             this.$data.period_message = "内容已过期"
           } else {
             // 显示内容
-            if (section.screen_content_type === 6
-                || section.screen_content_type === 7
-                || section.screen_content_type === 8
-                || section.screen_content_type === 9
-                || section.screen_content_type === 1000
-                || section.screen_content_type === 1001
-            ) {
-              _this.showContent(section.screen_content_type, section.screen_url, section.wps_file_id, section.permission_type);
-            }
+            _this.showContent(section.screen_content_type, section.screen_url, section.wps_file_id, section.permission_type);
           }
           this.clearRequestParams()
         } else if (res.data.code === -1) {
@@ -220,9 +251,7 @@ export default {
       console.log('url', url)
       // this.resUrl = url;
       this.content_type = type;
-      // 6 pdf
-      // 7 ppt
-      if (type === 1000) {
+      if (type === 1000 || type === 1002 || type === 1003) {
         window.location.replace(url);
       } else if (type === 6 || type === 7 || type === 8 || type === 9) {
         let officeType = WebOfficeSDK.OfficeType.Pdf
@@ -245,25 +274,18 @@ export default {
             break
         }
         this.loadWPS(wps_id, officeType, permission_type)
-
-        // pdf
-        // let pSrc = this.getRealUrl(url);
-        // let localHost = window.location.host
-        // this.resUrl = Config.baseUrl + '/static/web/pdf/web/viewer.html?file=' + encodeURIComponent(pSrc);
-        // window.location.replace(this.resUrl)
-      } else if (type === 7) {
-        // ppt
-        // let routeUrl = 'https://roboland-deliv.ubtrobot.com/test/App%E7%8A%B6%E6%80%81%E7%AE%A1%E7%90%86%E6%9E%B6%E6%9E%84.pptx'
-        // let officeUrl = 'http://view.officeapps.live.com/op/view.aspx?src=' + encodeURIComponent(this.getRealUrl(url))
-        // window.location.replace(officeUrl)
       } else if (type === 1) {
         // video
         this.resUrl = this.getRealUrl(url)
         this.poster = this.resUrl + "?x-oss-process=video/snapshot,t_0000,f_jpg,m_fast"
       } else if (type === 1001) {
+        // 富文本
         this.resUrl = url
+      } else if (type === 3000) {
+        // ACTION
       } else {
-        this.resUrl = this.getRealUrl(url)
+        this.prompt_message = "未知内容"
+        // this.resUrl = this.getRealUrl(url)
         // window.location.replace("https://roboland-deliv.ubtrobot.com/" + url);
       }
     },
@@ -362,6 +384,16 @@ video {
   text-align: center;
   font-weight: bold;
   color: red;
+  white-space: pre-wrap;
+}
+.prompt-text{
+  padding: 20px;
+  justify-content: center;
+  margin: auto;
+  font-size: 20px;
+  text-align: center;
+  font-weight: bold;
+  color: black;
   white-space: pre-wrap;
 }
 </style>
