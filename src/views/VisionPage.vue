@@ -77,6 +77,11 @@ export default {
   created() {
     document.title = "幻境资源";
     console.log(`location=${location.href}`)
+    if (this.$route.query.short_url_key) {
+      // 短链接跳转
+      this.loadAuthPage(this.$route.query.short_url_key)
+      return;
+    }
     const params_id = location.search.match(/id=([0-9]+)/);
     const params_code = location.search.match(/code=([0-9a-zA-Z]+)/);
     const params_token = location.search.match(/token=([0-9]+)/);
@@ -175,6 +180,16 @@ export default {
   methods: {
     focus(event) {
       event.enable(false);
+    },
+    loadAuthPage(key) {
+      let url = "https://ai.udicaria.com/agent/short_url?key=" + key
+      this.$http.get(url).then(res => {
+        console.log(res)
+        if (res.data.code === 0) {
+          console.log("url = ", res.data.data)
+          window.location.replace(res.data.data)
+        }
+      })
     },
     updateImages() {
       let rt = document.getElementById('richText')
