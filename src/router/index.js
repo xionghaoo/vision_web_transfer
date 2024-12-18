@@ -14,6 +14,11 @@ const router = VueRouter.createRouter({
       name: 'Login',
       component: () => import('../views/Login.vue')
     },
+    {
+      path: '/cozeAuth',
+      name: 'CozeAuthPage',
+      component: () => import('../views/CozeAuthPage.vue')
+    },
   ]
 })
 
