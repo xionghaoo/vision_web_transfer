@@ -78,6 +78,7 @@ export default {
     document.title = "幻境资源";
     console.log(`location=${location.href}`)
     if (this.$route.query.short_url_key) {
+      document.title = "Coze授权";
       // 短链接跳转
       this.loadAuthPage(this.$route.query.short_url_key)
       return;
