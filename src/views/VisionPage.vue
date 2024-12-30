@@ -198,9 +198,9 @@ export default {
       if (rt) {
         let imgs = rt.getElementsByTagName("img")
         console.log('images', imgs)
-        for (let i = 0; i < imgs.length; i++) {
-          imgs[i].style['width'] = "100%";
-        }
+        // for (let i = 0; i < imgs.length; i++) {
+        //   imgs[i].style['width'] = "100%";
+        // }
 
         let videos = rt.getElementsByTagName("video")
         for (let i = 0; i < videos.length; i++) {
