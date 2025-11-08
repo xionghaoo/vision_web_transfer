@@ -12,5 +12,5 @@ export const RequestHttpDev = 'https://vision-dev.udicaria.com';
 // export const RequestHttpDev = 'http://192.168.2.187:5003';
 
 //生产环境api地址
-export const RequestHttpPro = 'https://vision.udicaria.com';
+export const RequestHttpPro = 'http://120.25.49.109:8015';
 
